@@ -67,7 +67,7 @@ int main() {
 
     // 5. データの送信（パース成功確認用のテスト送信メッセージ）
     char message[256];
-    sprintf(message, "Hello from %s", initid_value); // パースしたinitIDを組み込む！
+    sprintf(message, "%s,DUMMY_DATA_001\n", initid_value); // パースしたinitIDを組み込む！
     send(sock, message, strlen(message), 0);
     printf("Message sent: %s\n", message);
 

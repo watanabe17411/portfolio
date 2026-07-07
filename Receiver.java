@@ -42,7 +42,7 @@ public class Receiver {
             String[] data = receivedMessage.split(",");
             String deviceName = data[0];
             String dataType = data[1];
-            String dataValue = data[2];
+            String dataValue = "N/A";
 
             // 4. データベースへ接続・保存 (変数 dbUrl, dbUser, dbPass を使用)
             System.out.println("Connecting to Database... -> " + dbUrl);
