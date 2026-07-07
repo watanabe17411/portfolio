@@ -1,22 +1,35 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.io.*;
+import java.net.*;
+import java.sql.*;
+import java.util.Properties;
 
 public class Receiver {
-    private static final int PORT = 8500;
-    // データベースへの接続情報
-    private static final String DB_URL = "jdbc:postgresql://localhost:51432/postgres"; // 通常5432ですがポリテク環境用に調整する場合あり
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASS = ""; // パスワードなし、または設定したもの
-
+    
     public static void main(String[] args) {
-        System.out.println("Java Server started. Waiting for connection...");
+        // 1. 設定ファイルの動的ロード
+        Properties props = new Properties();
+        try (InputStream input = new FileInputStream("db.properties")) {
+            props.load(input);
+        } catch (IOException e) {
+            System.err.println("設定ファイルの読み込みに失敗: " + e.getMessage());
+            return;
+        }
 
-        try (ServerSocket serverSocket = new ServerSocket(PORT);
+        // 2. 外部設定を変数化
+        String dbHost = props.getProperty("db.host");
+        String dbPort = props.getProperty("db.port");
+        String dbName = props.getProperty("db.name");
+        String dbUser = props.getProperty("db.user");
+        String dbPass = props.getProperty("db.password");
+        int socketPort = Integer.parseInt(props.getProperty("socket.port", "5000"));
+
+        // JDBC接続URLの組み立て
+        String dbUrl = String.format("jdbc:postgresql://%s:%s/%s", dbHost, dbPort, dbName);
+
+        // 3. 既存のソケットサーバー通信処理
+        System.out.println("Java Server started. Waiting for connection on port " + socketPort + "...");
+
+        try (ServerSocket serverSocket = new ServerSocket(socketPort);
              Socket clientSocket = serverSocket.accept();
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
@@ -31,10 +44,11 @@ public class Receiver {
             String dataType = data[1];
             String dataValue = data[2];
 
-            // データベースへ保存 (SQLの発行)
-            System.out.println("Connecting to Database...");
+            // 4. データベースへ接続・保存 (変数 dbUrl, dbUser, dbPass を使用)
+            System.out.println("Connecting to Database... -> " + dbUrl);
             Class.forName("org.postgresql.Driver");
-            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS)) {
+            
+            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPass)) {
                 String sql = "INSERT INTO iot_log_data (device_name, data_type, data_value) VALUES (?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, deviceName);

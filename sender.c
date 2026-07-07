@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 
 #define SERVER_IP "127.0.0.1" 	//自分自身を指定
-#define PORT 8500		//受信待ちのポート番号
+#define PORT 5000		//受信待ちのポート番号
 
 int main(){
 	int sock;
