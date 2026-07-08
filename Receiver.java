@@ -40,8 +40,8 @@ public class Receiver {
 
             // カンマで分割 (例: "RasPi_01", "TEMP", "26.5")
             String[] data = receivedMessage.split(",");
-            String deviceName = data[0];
-            String dataType = data[1];
+            String deviceName = data[0];    // -> "RFID_READER_01"
+            String rfidTagId = data[1];      // -> "E280113020007461" (RFIDタグID)
             String dataValue = "N/A";
 
             // 4. データベースへ接続・保存 (変数 dbUrl, dbUser, dbPass を使用)
@@ -52,7 +52,7 @@ public class Receiver {
                 String sql = "INSERT INTO iot_log_data (device_name, data_type, data_value) VALUES (?, ?, ?)";
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                     pstmt.setString(1, deviceName);
-                    pstmt.setString(2, dataType);
+                    pstmt.setString(2, rfidTagId);
                     pstmt.setString(3, dataValue);
                     
                     int rows = pstmt.executeUpdate();
