@@ -35,33 +35,34 @@ public class Receiver {
 
             System.out.println("Connected from C client!");
 
-            String receivedMessage = in.readLine();
-            System.out.println("Received: " + receivedMessage);
+            String receivedMessage;
+            while((receivedMessage = in.readLine()) != null){
+                System.out.println("Received: " + receivedMessage);
 
-            // カンマで分割 (例: "RasPi_01", "TEMP", "26.5")
-            String[] data = receivedMessage.split(",");
-            String deviceName = data[0];    // -> "RFID_READER_01"
-            String rfidTagId = data[1];      // -> "E280113020007461" (RFIDタグID)
-            String dataValue = "N/A";
+                // カンマで分割 (例: "RasPi_01", "TEMP", "26.5")
+                String[] data = receivedMessage.split(",");
+                String deviceName = data[0];    // -> "RFID_READER_01"
+                String rfidTagId = data[1];      // -> "E280113020007461" (RFIDタグID)
+                String dataValue = "N/A";
 
-            // 4. データベースへ接続・保存 (変数 dbUrl, dbUser, dbPass を使用)
-            System.out.println("Connecting to Database... -> " + dbUrl);
-            Class.forName("org.postgresql.Driver");
-            
-            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPass)) {
-                String sql = "INSERT INTO iot_log_data (device_name, data_type, data_value) VALUES (?, ?, ?)";
-                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                    pstmt.setString(1, deviceName);
-                    pstmt.setString(2, rfidTagId);
-                    pstmt.setString(3, dataValue);
-                    
-                    int rows = pstmt.executeUpdate();
-                    if (rows > 0) {
-                        System.out.println("➔ [SQL成功] データベースに正常に保存されました！");
+                // 4. データベースへ接続・保存 (変数 dbUrl, dbUser, dbPass を使用)
+                System.out.println("Connecting to Database... -> " + dbUrl);
+                Class.forName("org.postgresql.Driver");
+                
+                try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPass)) {
+                    String sql = "INSERT INTO iot_log_data (device_name, data_type, data_value) VALUES (?, ?, ?)";
+                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        pstmt.setString(1, deviceName);
+                        pstmt.setString(2, rfidTagId);
+                        pstmt.setString(3, dataValue);
+                        
+                        int rows = pstmt.executeUpdate();
+                        if (rows > 0) {
+                            System.out.println("➔ [SQL成功] データベースに正常に保存されました！");
+                        }
                     }
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

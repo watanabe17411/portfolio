@@ -68,10 +68,14 @@ int main() {
     // 5. データの送信（パース成功確認用のテスト送信メッセージ）
     char message[256];
     char rfid_tag_id[32] = "E280113020007461";
-    sprintf(message, "%s,%s\n", initid_value, rfid_tag_id); // パースしたinitIDを組み込む！
-    send(sock, message, strlen(message), 0);
-    printf("Message sent: %s\n", message);
 
+    while(1){
+        sprintf(message, "%s,%s\n", initid_value, rfid_tag_id); // パースしたinitIDを組み込む！
+        send(sock, message, strlen(message), 0);
+        printf("Message sent: %s\n", message);
+
+        sleep(1);
+    }
     close(sock);
     return 0;
 }
