@@ -18,6 +18,10 @@ public class IotLogDao {
 
 	public List<IotLog> getAllLogs() {
 		List<IotLog> logs = new ArrayList<>();
+		try { Class.forName("org.postgresql.Driver");
+		 } catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 		String sql = "SELECT * FROM iot_log_data ORDER BY id DESC";
 
 		try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
