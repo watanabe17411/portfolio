@@ -46,26 +46,29 @@ public class Receiver {
 
                     String receivedMessage;
                     // 5. データが届く限り、通信もDB接続も維持したままループ
-                    while ((receivedMessage = in.readLine()) != null) {
-                        System.out.println("Received: " + receivedMessage);
+	                    while ((receivedMessage = in.readLine()) != null) {
+	                        System.out.println("Received: " + receivedMessage);
 
-                        // カンマで分割
-                        String[] data = receivedMessage.split(",");
-                        String deviceName = data[0];    // -> "RFID_READER_01"
-                        String rfidTagId = data[1];     // -> "E280113020007461"
-                        String dataValue = "N/A";
+	                        // カンマで分割
+	                        String[] data = receivedMessage.split(",");
+						if (data.length >= 2){
+	                        String rfidTagId = data[0];     // -> "ABCD1234"
+	                        String detectedTime = data[1];	// -> "2026-07-10 11:14:02"
 
-                        // 外側で1回だけ生成した pstmt を使い回す
-                        pstmt.setString(1, deviceName);
-                        pstmt.setString(2, rfidTagId);
-                        pstmt.setString(3, dataValue);
-                        
-                        int rows = pstmt.executeUpdate();
-                        if (rows > 0) {
-                            System.out.println("➔ [SQL成功] データベースに正常に保存されました！");
-                        }
-                    }
-                }
+	                        // 外側で1回だけ生成した pstmt を使い回す
+	                        pstmt.setString(1, "RASPBERRY_PI_RFID");
+	                        pstmt.setString(2, "RFID_UID");
+	                        pstmt.setString(3, rfidTagId + "," + detectedTime);
+	                        
+	                        int rows = pstmt.executeUpdate();
+	                        if (rows > 0) {
+	                            System.out.println("➔ [SQL成功] データベースに正常に保存されました！");
+	                        }
+	                    } else {
+								System.err.println("受信デートのフォーマットが不正です: " + receivedMessage);
+						} 
+					}
+               }
             }
         } catch (Exception e) {
             e.printStackTrace();
