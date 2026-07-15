@@ -24,8 +24,17 @@ public class IotLogServlet extends HttpServlet {
 
 		IotLogDao dao = new IotLogDao(dbUrl, dbUser, dbPass);
 
-		List<IotLog> logList = dao.getAllLogs();
+		String viewType = request.getParameter("view");
+		List<IotLog> logList;
 
+		// viewパラメータが "all" の場合は全件、それ以外（recent等）は直近10件
+		if ("all".equals(viewType)) {
+			logList = dao.getAllLogs();
+		} else {
+			logList = dao.getRecent10Logs();
+		}
+
+		request.setAttribute("currentView", viewType);
 		request.setAttribute("logs", logList);
 
 		request.getRequestDispatcher("/WEB-INF/logs.jsp").forward(request, response);
