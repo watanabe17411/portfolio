@@ -52,13 +52,13 @@ public class Receiver {
 	                        // カンマで分割
 	                        String[] data = receivedMessage.split(",");
 						if (data.length >= 2){
-	                        String rfidTagId = data[0];     // -> "ABCD1234"
+	                        String rfidTagId = data[0].trim();     // -> "ABCD1234"
 	                        String detectedTime = data[1];	// -> "2026-07-10 11:14:02"
 
 	                        // 外側で1回だけ生成した pstmt を使い回す
 	                        pstmt.setString(1, "RASPBERRY_PI_RFID");
 	                        pstmt.setString(2, "RFID_UID");
-	                        pstmt.setString(3, rfidTagId + "," + detectedTime);
+	                        pstmt.setString(3, rfidTagId);
 	                        
 	                        int rows = pstmt.executeUpdate();
 	                        if (rows > 0) {
