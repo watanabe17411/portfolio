@@ -2,12 +2,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
-#include <time.h>
 #include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <linux/spi/spidev.h>
 
 #define COMMAND_REG     0x01
@@ -24,7 +19,7 @@ void write_reg(uint8_t reg, uint8_t value) {
         .tx_buf = (unsigned long)tx_data,
         .rx_buf = (unsigned long)rx_data,
         .len = 2,
-        .speed_hz = 100000, // 安定稼働実績の100kHzをロック
+        .speed_hz = 100000,
         .bits_per_word = 8
     };
     ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
@@ -37,7 +32,7 @@ uint8_t read_reg(uint8_t reg) {
         .tx_buf = (unsigned long)tx_data,
         .rx_buf = (unsigned long)rx_data,
         .len = 2,
-        .speed_hz = 100000, // 安定稼働実績の100kHzをロック
+        .speed_hz = 100000,
         .bits_per_word = 8
     };
     if (ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr) < 0) return 0;
@@ -47,18 +42,17 @@ uint8_t read_reg(uint8_t reg) {
 int main() {
     spi_fd = open("/dev/spidev0.0", O_RDWR);
     if (spi_fd < 0) {
-        perror("【エラー】/dev/spidev0.0 のオープンに失敗しました。");
-        return 1;
-    }
-    
-    uint8_t mode = SPI_MODE_0;
-    if (ioctl(spi_fd, SPI_IOC_WR_MODE, &mode) < 0) {
-        perror("SPIモード設定失敗");
-        close(spi_fd);
+        perror("【エラー】/dev/spidev0.0 オープン失敗");
         return 1;
     }
 
-    // 初期化セクション（完全検証済みシークエンス）
+    uint8_t mode = SPI_MODE_0;
+    ioctl(spi_fd, SPI_IOC_WR_MODE, &mode);
+
+    printf("=== TEST 3: REQAタイミング・ステータス可視化試験 ===\n");
+    printf("※カードをRC522に近づけたり離したりしてください（Ctrl+Cで終了）\n\n");
+
+    // 初期化セクション（0x24を完全に排除）
     write_reg(0x01, 0x0F); // SoftReset
     usleep(50000);
     
@@ -74,25 +68,11 @@ int main() {
     uint8_t tx_ctrl = read_reg(0x14);
     write_reg(0x14, tx_ctrl | 0x03);
 
-    // ソケット通信初期化
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in serv_addr;
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(5000);
-    serv_addr.sin_addr.s_addr = inet_addr("192.168.150.64");
-
-    printf("Javaバックエンド（Receiver）に接続中...\n");
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        printf("Javaとのソケット通信の接続に失敗しました。\n");
-        close(spi_fd);
-        return 1;
-    }
-    printf("通信パイプライン開通！RFIDスキャン待機中...\n");
-
-    uint8_t uid[5];
-    char send_buf[128];
+    uint32_t loop_count = 0;
 
     while (1) {
+        loop_count++;
+        
         // --- ステップ1: カードの存在確認 (REQA: 厳密に7ビット送信仕様) ---
         write_reg(COMMAND_REG, 0x00);        // Idle状態へ
         write_reg(FIFO_LEVEL_REG, 0x80);     // FIFOクリア
@@ -121,7 +101,6 @@ int main() {
         uint8_t n = read_reg(FIFO_LEVEL_REG);
         uint8_t err = read_reg(0x06);
 
-        // REQA成功時のみAnticollisionへ進む
         if (n == 2 && err == 0x00) { 
             // --- ステップ2: 衝突防止 (Anticollision: 端数なし・完全パケット) ---
             write_reg(COMMAND_REG, 0x00);    
@@ -146,32 +125,24 @@ int main() {
             err = read_reg(0x06);
             n = read_reg(FIFO_LEVEL_REG);
 
-            // 完全にエラーがなく、5バイトのデータが揃った場合のみ送信処理を実行
-            if (n == 5 && err == 0x00) {
-                for(int i = 0; i < 5; i++) {
-                    uid[i] = read_reg(FIFO_DATA_REG);
+            printf("[%05d] REQA成功 -> Anticollision検知! FIFO_Lv:%d | ErrorReg:0x%02X\n", 
+                   loop_count, n, err);
+            
+            if (n > 0) {
+                printf("   -> UID Raw Data: ");
+                for(int i = 0; i < n; i++) {
+                    printf("%02X ", read_reg(FIFO_DATA_REG));
                 }
-
-                time_t now = time(NULL);
-                // 4バイトのUIDを16進数文字列へバインド
-                snprintf(send_buf, sizeof(send_buf), "%02X%02X%02X%02X,%ld\n", 
-                         uid[0], uid[1], uid[2], uid[3], now);
-
-                printf("【物理RFID確定検知！】送信データ: %s", send_buf);
-
-                if (send(sock, send_buf, strlen(send_buf), 0) < 0) {
-                    printf("送信失敗。パイプラインが切断されました。\n");
-                    break;
-                }
-                
-                // チャタリング・重複送信防止のディレイ
-                sleep(2);
+                printf("\n");
+            }
+        } else {
+            if (n > 0 || err > 0) {
+                printf("[%05d] REQA不整合: FIFO_Lv:%d | ErrorReg:0x%02X\n", loop_count, n, err);
             }
         }
         usleep(50000); 
-    }
+    } // whileの閉じ括弧
 
-    close(sock);
     close(spi_fd);
     return 0;
-}
+} // mainの閉じ括弧（★不足していた箇所の完全補正）
