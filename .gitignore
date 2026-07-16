@@ -1,0 +1,5 @@
+db.properties
+*.class
+rfid_system
+test_spi
+test_timing
