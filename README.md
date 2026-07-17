@@ -100,7 +100,9 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 
 ## 🚀 導入・実行手順
 
-### 1. データベースセットアップ
+<details>
+<summary><b>### 1. データベースセットアップ</b></summary>
+
 ```sql
 CREATE DATABASE portfolio_db;
 -- ログテーブル
@@ -117,17 +119,22 @@ CREATE TABLE product_master (
     product_name VARCHAR(100)
 );
 ```
+</details>
+<details>
+<summary><b>### 2. Raspberry Pi 4（Cエンジン）のビルド・起動</b></summary>
 
-### 2. Raspberry Pi 4（Cエンジン）のビルド・起動
 ```bash
 gcc -O2 -Wall -o rfid_system main.c
 sudo systemctl enable rfid.service
 sudo systemctl start rfid.service
 ```
-
-### 3. Javaレシーバ & Tomcatの稼働
+</details>
+<details>
+<summary><b>### 3. Javaレシーバ & Tomcatの稼働</b></summary>
 `db.properties` を配置後、レシーバソケットをバックグラウンドで起動させ、Tomcatへサーブレットをホットデプロイします。
+
 ```bash
 javac Receiver.java && java -cp .:db.jar Receiver
 ```
+</details>
 
