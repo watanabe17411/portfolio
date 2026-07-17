@@ -1,3 +1,30 @@
+Mermaid""
+```mermaid
+flowchart TD
+    classDef raspi fill:#8B0000,stroke:#333,stroke-width:2px,color:#fff;
+    classDef win fill:#1E3A8A,stroke:#333,stroke-width:2px,color:#fff;
+    classDef ubuntu fill:#D97706,stroke:#333,stroke-width:2px,color:#fff;
+
+    subgraph Layer1 [【ハードウェア / C言語層】 Raspberry Pi 4]
+        A[スマホ / MIFAREカード] -- NFC電波: 13.56MHz --> B[MFRC522 リーダー]
+        B -- SPI通信: spidev0.0 <br>「100kHz / usleep 200」で安定化 --> C[C-Engine: rfid_system]
+    end
+
+    subgraph Layer2 [【ネットワーク中継層】 Windows Host]
+        C -- C/O2ソケット通信 --> D[VirtualBox Bridged Network]
+        D -- NAT / ポートフォワーディング <br>「Host:5000 -> Guest:5000」 --> E[Ubuntu 仮想環境]
+    end
+
+    subgraph Layer3 [【バックエンド / Webアプリケーション層】 Ubuntu 10.0.2.15]
+        E --> F[Java Receiver.java <br>「Port 5000 待機」]
+        F -- 8文字HEX UID抽出 --> G[(PostgreSQL <br> portfolio_db)]
+        
+        H[Webブラウザ <br> view画面] -- HTTPリクエスト --> I[Tomcat 10.1 / Servlet]
+        I -- LEFT JOIN <br>「iot_log_data ✖ product_master」 --> G
+        G -- 製品名マッピングされたログ --> H
+    end
+```
+""
 # 📊 Multi-Layer IoT RFID Logging & Mapping System
 低レイヤのハードウェア制御（Raspberry Pi 4 / C言語）から、バックグラウンドのソケットサーバー（Java）、分散型データベース（PostgreSQL）、そしてWebフロントエンド（Tomcat / Servlet）までを縦断的に自作・結合した、フルスタックのIoTシステムです。
 
