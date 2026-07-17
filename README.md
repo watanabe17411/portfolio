@@ -1,4 +1,3 @@
-Mermaid""
 ```mermaid
 flowchart TD
     classDef raspi fill:#8B0000,stroke:#333,stroke-width:2px,color:#fff;
@@ -24,7 +23,6 @@ flowchart TD
         G -- 製品名マッピングされたログ --> H
     end
 ```
-""
 # 📊 Multi-Layer IoT RFID Logging & Mapping System
 低レイヤのハードウェア制御（Raspberry Pi 4 / C言語）から、バックグラウンドのソケットサーバー（Java）、分散型データベース（PostgreSQL）、そしてWebフロントエンド（Tomcat / Servlet）までを縦断的に自作・結合した、フルスタックのIoTシステムです。
 
