@@ -1,5 +1,6 @@
 <details>
-<summary><b>▶ システム構成図（Mermaid）を表示する</b></summary>
+<summary><b>🗺️ 【全体構成図】物理層(C言語)からWeb層(Java)までのデータ同期経路を表示</b></summary>
+
 ```mermaid
 flowchart TD
     classDef raspi fill:#8B0000,stroke:#333,stroke-width:2px,color:#fff;
@@ -56,10 +57,12 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 └── マスタ結合クエリにより、生のUIDを「iPhone 15 Pro」等の実商品名へバインド
 └── http://localhost:8080/portfolio/view にてリアルタイムグリッド表示
 
-
 ---
 
 ## 🛠️ 技術スタック & 稼働環境
+
+<details>
+<summary><b>💻 【使用技術一覧】Raspberry Pi4 / C言語 / Java17 / Tomcat / PostgreSQL</b></summary>
 
 ### ハードウェア / 低レイヤ
 - **デバイス**: Raspberry Pi 4 Model B
@@ -72,6 +75,8 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 - **Web/サーブレットコンテナ**: Apache Tomcat 10.1.57 (Jakarta EE 仕様)
 - **言語**: Java 17 (Socket / ServerSocket / JDBC / Servlet)
 - **データベース**: PostgreSQL 15 (リレーショナル・マスタ共有スキーマ設計)
+
+</details>
 
 ---
 
