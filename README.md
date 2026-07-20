@@ -1,5 +1,5 @@
 <details>
-<summary><b>🗺️ 【全体構成図】物理層(C言語)からWeb層(Java)までのデータ同期経路を表示</b></summary>
+<summary><b>【全体構成図】物理層(C言語)からWeb層(Java)までのデータ同期経路を表示</b></summary>
 
 ```mermaid
 flowchart TD
@@ -28,11 +28,11 @@ flowchart TD
 ```
 </details>
 
-# 📊 Multi-Layer IoT RFID Logging & Mapping System
+# Multi-Layer IoT RFID Logging & Mapping System
 低レイヤのハードウェア制御（Raspberry Pi 4 / C言語）から、バックグラウンドのソケットサーバー（Java）、分散型データベース（PostgreSQL）、そしてWebフロントエンド（Tomcat / Servlet）までを縦断的に自作・結合した、フルスタックのIoTシステムです。
 
 単なるデータの横流しではなく、**物理層におけるノイズ・タイミングの調律**や、**データベース設計におけるリレーショナルマッピング**を徹底検証し、製品レベルの堅牢性を確保しています。
----## 🏗️ システムアーキテクチャ（データフロー）
+---## システムアーキテクチャ（データフロー）
 物理的なRFIDスキャンからWeb画面への描画まで、パケットおよびデータは以下の4つの階層をリアルタイムに同期・透過します。
 
 
@@ -59,10 +59,10 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 
 ---
 
-## 🛠️ 技術スタック & 稼働環境
+## 技術スタック & 稼働環境
 
 <details>
-<summary><b>💻 【使用技術一覧】Raspberry Pi4 / C言語 / Java17 / Tomcat / PostgreSQL</b></summary>
+<summary><b>【使用技術一覧】Raspberry Pi4 / C言語 / Java17 / Tomcat / PostgreSQL</b></summary>
 
 ### ハードウェア / 低レイヤ
 - **デバイス**: Raspberry Pi 4 Model B
@@ -80,7 +80,7 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 
 ---
 
-## ⚡ 本プロジェクトにおける最大の技術的アチーブメント（デバッグ実績）
+## 本プロジェクトにおける最大の技術的アチーブメント（デバッグ実績）
 
 開発過程において発生した、ハードウェアとソフトウェアの速度ギャップに起因する**シグナル・インテグリティの崩壊（誤検知・データ大洪水）**を、データシートのファクトに基づきビット単位で解消しました。
 
@@ -98,7 +98,7 @@ Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
 
 ---
 
-## 🚀 導入・実行手順
+## 導入・実行手順
 
 <details>
 <summary><b>### 1. データベースセットアップ</b></summary>
