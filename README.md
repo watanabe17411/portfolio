@@ -94,7 +94,7 @@ ICカードをかざしてから、Web画面に商品名が表示されるまで
 ## 導入・実行手順
 
 <details>
-<summary><b>### 1. データベースセットアップ</b></summary>
+<summary><b>1. データベースセットアップ</b></summary>
 
 ```sql
 CREATE DATABASE portfolio_db;
@@ -114,7 +114,7 @@ CREATE TABLE product_master (
 ```
 </details>
 <details>
-<summary><b>### 2. Raspberry Pi 4（Cエンジン）のビルド・起動</b></summary>
+<summary><b>2. Raspberry Pi 4（Cエンジン）のビルド・起動</b></summary>
 
 ```bash
 gcc -O2 -Wall -o rfid_system main.c
@@ -123,7 +123,7 @@ sudo systemctl start rfid.service
 ```
 </details>
 <details>
-<summary><b>### 3. Javaレシーバ & Tomcatの稼働</b></summary>
+<summary><b>3. Javaレシーバ & Tomcatの稼働</b></summary>
 `db.properties` を配置後、レシーバソケットをバックグラウンドで起動させ、Tomcatへサーブレットをホットデプロイします。
 
 ```bash
