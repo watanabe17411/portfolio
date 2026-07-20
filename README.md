@@ -33,25 +33,25 @@ flowchart TD
 
 
 [1. 物理・ハードウェア層]
-Raspberry Pi 4 (C言語 / 独自調律Cエンジン)
-└── SPIバス (spidev0.0 / 100kHz) 経由で MFRC522 ICリーダを制御
-└── RFIDカードを検知 [UID: 531E113A]
-│
-▼ (Port 5000: TCP/IP Socket 通信)
-[2. アプリケーション・レシーバ層]
-VirtualBox Ubuntu 環境下で稼働するソケットサーバー (Java / Receiver.class)
-└── 受信パケットから純粋な 8文字の UID を抽出・クレンジング
-│
-▼ (JDBC Driver 経由の INSERT SQL)
-[3. データベース層]
-PostgreSQL (portfolio_db)
-└── iot_log_data (生ログ格納) ── [LEFT JOIN] ── product_master (マスタ)
-▲
-│ (SELECT SQL による動的結合)
-[4. Webフロントエンド・描画層]
-Apache Tomcat 10.1.57 (Java Servlet / DataViewerServlet.java)
-└── マスタ結合クエリにより、生のUIDを「iPhone 15 Pro」等の実商品名へバインド
-└── http://localhost:8080/portfolio/view にてリアルタイムグリッド表示
+ICカードをかざしてから、Web画面に商品名が表示されるまでのデータの流れです。
+
+* **1. 物理・ハードウェア層（データの検知）**
+  * 端末・言語： Raspberry Pi 4（C言語）
+  * 処理内容： ICカードリーダー（MFRC522）を制御し、カードの固有番号（UID：8文字の英数字）を検知します。
+  * 通信： ネットワーク中継（ポート5000 / ソケット通信）でサーバーへ送信します。
+* **2. アプリケーション層（データの受け取り）**
+  * 環境・言語： 仮想環境（Ubuntu）上のJavaプログラム
+  * 処理内容： 送られてきたデータから、余計なノイズを削ぎ落として綺麗な「8文字のUID」だけを抽出します。
+  * 通信： データベースへ保存（JDBC経由でINSERT）します。
+* **3. データベース層（データの蓄積・紐付け）**
+  * システム： PostgreSQL
+  * 処理内容： 読み取った履歴（生ログ）と、あらかじめ登録してある「商品マスタ（商品名データ）」をリアルタイムに結合します。
+* **4. Web画面・描画層（データの見える化）**
+  * システム： Apache Tomcat（Javaサーブレット）
+  * URL： http://localhost:8080/portfolio/view
+  * 処理内容： データベースで紐付けたデータを読み込み、ただの英数字だったUIDを「iPhone 15 Pro」などの実際の商品名に変えて画面にリアルタイム表示します。
+
+
 
 ---
 
