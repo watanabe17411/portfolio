@@ -1,4 +1,7 @@
 # 動作デモ（30秒のシステム連動動画）
+https://github.com/user-attachments/assets/aa99db8e-3a51-4788-b9b0-8a402b5b0463
+
+---
 
 <details>
 <summary><b>【全体構成図】物理層(C言語)からWeb層(Java)までのデータ同期経路を表示</b></summary>
